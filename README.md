@@ -27,8 +27,7 @@ struct ContentView: View {
 		VStack {
 			Text("Example!")
 		}
-		.overlay(self.showImageViewer ?
-		ImageViewer(image: Image("example-image"), viewerShown: self.$showImageViewer) : nil)
+		.overlay(ImageViewer(image: Image("example-image"), viewerShown: self.$showImageViewer))
 	}
 }
 ```
