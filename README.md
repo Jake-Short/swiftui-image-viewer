@@ -21,14 +21,14 @@ File > Swift Packages > Add Package Dependancy
 import swiftui-image-viewer
 
 struct ContentView: View {
-	@State var showImageViewer: Bool = true
+    @State var showImageViewer: Bool = true
 	
-	var body: some View {
-		VStack {
-			Text("Example!")
-		}
-		.overlay(ImageViewer(image: Image("example-image"), viewerShown: self.$showImageViewer))
-	}
+    var body: some View {
+        VStack {
+            Text("Example!")
+        }
+        .overlay(ImageViewer(image: Image("example-image"), viewerShown: self.$showImageViewer))
+    }
 }
 ```
 
