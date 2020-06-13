@@ -7,7 +7,7 @@
 
 ## Summary
 
-An image viewer built using SwiftUI. Featuring drag to dismiss, pinch to zoom, and more.
+An image viewer built using SwiftUI. Featuring drag to dismiss, pinch to zoom, remote images, and more.
 
 ![image](https://media2.giphy.com/media/LSKUWsW9KogOLIS2ZS/giphy.gif?cid=4d1e4f29cacda6de9a149bb9b7a2717faec03a9ebd6d5fdd&rid=giphy.gif)
 
@@ -19,6 +19,7 @@ File > Swift Packages > Add Package Dependancy
 
 ## Usage
 
+Local Image:
 ```Swift
 import swiftui-image-viewer
 
@@ -30,6 +31,22 @@ struct ContentView: View {
             Text("Example!")
         }
         .overlay(ImageViewer(image: Image("example-image"), viewerShown: self.$showImageViewer))
+    }
+}
+```
+
+Remote Image:
+```Swift
+import swiftui-image-viewer
+
+struct ContentView: View {
+    @State var showImageViewer: Bool = true
+	
+    var body: some View {
+        VStack {
+            Text("Example!")
+        }
+        .overlay(ImageViewerRemote(imageURL: URL(string: "https://..."), viewerShown: self.$showImageViewer))
     }
 }
 ```
