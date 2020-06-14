@@ -36,7 +36,7 @@ struct ImageViewerRemote: View {
                     .zIndex(2)
                     
                     VStack {
-                        URLImage(URL(string: self.imageURL ?? "https://via.placeholder.com/300.png")!) { proxy in
+                        URLImage(URL(string: self.imageURL)!) { proxy in
                         proxy.image
                             .resizable()
                             .aspectRatio(contentMode: .fit)
