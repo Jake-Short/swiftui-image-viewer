@@ -7,7 +7,7 @@
 
 ## Summary
 
-An image viewer built using SwiftUI. Featuring drag to dismiss, pinch to zoom, remote images, and more.
+An image viewer built using SwiftUI. Featuring drag to dismiss, pinch to zoom, remote and local images, and more.
 
 ![image](https://media2.giphy.com/media/LSKUWsW9KogOLIS2ZS/giphy.gif?cid=4d1e4f29cacda6de9a149bb9b7a2717faec03a9ebd6d5fdd&rid=giphy.gif)
 
