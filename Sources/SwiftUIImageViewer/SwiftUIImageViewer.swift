@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 import URLImage
 
-struct ImageViewerRemote: View {
+public struct ImageViewerRemote: View {
     @Binding var viewerShown: Bool
     @Binding var imageURL: String
     
@@ -77,7 +77,7 @@ struct ImageViewerRemote: View {
     }
 }
 
-struct ImageViewer: View {
+public struct ImageViewer: View {
     @Binding var viewerShown: Bool
     @Binding var image: Image
     
