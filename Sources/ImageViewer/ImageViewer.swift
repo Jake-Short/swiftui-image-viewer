@@ -2,6 +2,7 @@ import SwiftUI
 import UIKit
 import URLImage
 
+@available(iOS 13.0, *)
 public struct ImageViewer: View {
     @Binding var viewerShown: Bool
     @Binding var image: Image
@@ -9,13 +10,13 @@ public struct ImageViewer: View {
     @State var dragOffset: CGSize = CGSize.zero
     @State var dragOffsetPredicted: CGSize = CGSize.zero
     
-    init(image: Binding<Image>, viewerShown: Binding<Bool>) {
+    public init(image: Binding<Image>, viewerShown: Binding<Bool>) {
         _image = image
         _viewerShown = viewerShown
     }
 
     @ViewBuilder
-    var body: some View {
+    public var body: some View {
         VStack {
             if(viewerShown) {
                 ZStack {
