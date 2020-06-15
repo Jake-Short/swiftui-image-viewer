@@ -21,7 +21,7 @@ File > Swift Packages > Add Package Dependancy
 
 Local Image:
 ```Swift
-import SwiftUIImageViewer
+import ImageViewer
 
 struct ContentView: View {
     @State var showImageViewer: Bool = true
@@ -37,7 +37,7 @@ struct ContentView: View {
 
 Remote Image:
 ```Swift
-import SwiftUIImageViewer
+import ImageViewerRemote
 
 struct ContentView: View {
     @State var showImageViewer: Bool = true
