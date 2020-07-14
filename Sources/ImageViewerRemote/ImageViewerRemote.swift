@@ -27,6 +27,7 @@ public struct ImageViewerRemote: View {
             }
         }
         
+        print("Request URL image with request: \(request)")
         return request;
     }
 
