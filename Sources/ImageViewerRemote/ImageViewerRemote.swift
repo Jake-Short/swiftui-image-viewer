@@ -20,15 +20,21 @@ public struct ImageViewerRemote: View {
     func getURLRequest(url: String, headers: [String: String]?) -> URLRequest {
         let url = URL(string: url)!
         var request = URLRequest(url: url)
+        request.httpMethod = "GET"
         
         if(headers != nil) {
             for (key, value) in headers! {
-                request.setValue("\(value)", forHTTPHeaderField: "\(key)")
+                print("adding header: \(key): \(value)")
+                request.addValue("\(value)", forHTTPHeaderField: "\(key)")
             }
+            
+            print("headers found, requesting URL image with headers: \(request.allHTTPHeaderFields)")
+            return request;
         }
-        
-        print("Request URL image with request: \(request)")
-        return request;
+        else {
+            print("headers nil, requesting URL image with request: \(request)")
+            return request;
+        }
     }
 
     @ViewBuilder
