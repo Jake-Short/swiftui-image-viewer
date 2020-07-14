@@ -19,7 +19,7 @@ public struct ImageViewerRemote: View {
     
     func getURLRequest(url: String, headers: [String: String]?) -> URLRequest {
         let url = URL(string: url)!
-        let request = URLRequest(url: url)
+        var request = URLRequest(url: url)
         
         if(headers != nil) {
             for (key, value) in headers! {
