@@ -30,6 +30,7 @@ struct ContentView: View {
         VStack {
             Text("Example!")
         }
+	.frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(ImageViewer(image: Image("example-image"), viewerShown: self.$showImageViewer))
     }
 }
@@ -46,6 +47,7 @@ struct ContentView: View {
         VStack {
             Text("Example!")
         }
+	.frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(ImageViewerRemote(imageURL: URL(string: "https://..."), viewerShown: self.$showImageViewer))
     }
 }
@@ -66,6 +68,7 @@ struct ContentView: View {
         VStack {
             Text("Example!")
         }
+	.frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(ImageViewerRemote(imageURL: URL(string: "https://..."), viewerShown: self.$showImageViewer, httpHeaders: ["X-Powered-By": "Swift!"]))
     }
 }
