@@ -28,12 +28,12 @@ let package = Package(
         .target(
             name: "ImageViewer",
             dependencies: [
-                .product(name: "URLImage", package: "url-image")
+                .product(name: "URLImage")
             ]),
         .target(
             name: "ImageViewerRemote",
             dependencies: [
-                .product(name: "URLImage", package: "url-image")
+                .product(name: "URLImage")
             ])
     ]
 )
