@@ -11,7 +11,7 @@ public struct ImageViewerRemote: View {
     @State var dragOffset: CGSize = CGSize.zero
     @State var dragOffsetPredicted: CGSize = CGSize.zero
     
-    public init(imageURL: Binding<String>, viewerShown: Binding<Bool>, httpHeaders: [String: String]?) {
+    public init(imageURL: Binding<String>, viewerShown: Binding<Bool>, httpHeaders: [String: String]? = nil) {
         _imageURL = imageURL
         _viewerShown = viewerShown
         _httpHeaders = State(initialValue: httpHeaders)
@@ -65,10 +65,6 @@ public struct ImageViewerRemote: View {
                                     self.dragOffsetPredicted = value.predictedEndTranslation
                                 }
                                 .onEnded { value in
-                                    print(abs(self.dragOffset.height) + abs(self.dragOffset.width))
-                                    print((abs(self.dragOffsetPredicted.height)) / (abs(self.dragOffset.height)))
-                                    print((abs(self.dragOffsetPredicted.width)) / (abs(self.dragOffset.width)))
-                                    
                                     if((abs(self.dragOffset.height) + abs(self.dragOffset.width) > 570) || ((abs(self.dragOffsetPredicted.height)) / (abs(self.dragOffset.height)) > 3) || ((abs(self.dragOffsetPredicted.width)) / (abs(self.dragOffset.width))) > 3) {
                                         self.viewerShown = false
                                         return
