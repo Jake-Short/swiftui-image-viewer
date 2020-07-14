@@ -6,13 +6,28 @@ import URLImage
 public struct ImageViewerRemote: View {
     @Binding var viewerShown: Bool
     @Binding var imageURL: String
+    @State var httpHeaders: [String: String]?
     
     @State var dragOffset: CGSize = CGSize.zero
     @State var dragOffsetPredicted: CGSize = CGSize.zero
     
-    public init(imageURL: Binding<String>, viewerShown: Binding<Bool>) {
+    public init(imageURL: Binding<String>, viewerShown: Binding<Bool>, httpHeaders: [String: String]?) {
         _imageURL = imageURL
         _viewerShown = viewerShown
+        _httpHeaders = State(initialValue: httpHeaders)
+    }
+    
+    func getURLRequest(url: String, headers: [String: String]?) -> URLRequest {
+        let url = URL(string: url)!
+        let request = URLRequest(url: url)
+        
+        if(headers != nil) {
+            for (key, value) in headers! {
+                request.setValue("\(value)", forHTTPHeaderField: "\(key)")
+            }
+        }
+        
+        return request;
     }
 
     @ViewBuilder
@@ -37,7 +52,7 @@ public struct ImageViewerRemote: View {
                     .zIndex(2)
                     
                     VStack {
-                        URLImage(URL(string: self.imageURL)!) { proxy in
+                        URLImage(getURLRequest(url: self.imageURL, headers: self.httpHeaders)) { proxy in
                         proxy.image
                             .resizable()
                             .aspectRatio(contentMode: .fit)
