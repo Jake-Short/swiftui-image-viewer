@@ -6,13 +6,35 @@ import URLImage
 public struct ImageViewerRemote: View {
     @Binding var viewerShown: Bool
     @Binding var imageURL: String
+    @State var httpHeaders: [String: String]?
     
     @State var dragOffset: CGSize = CGSize.zero
     @State var dragOffsetPredicted: CGSize = CGSize.zero
     
-    public init(imageURL: Binding<String>, viewerShown: Binding<Bool>) {
+    public init(imageURL: Binding<String>, viewerShown: Binding<Bool>, httpHeaders: [String: String]? = nil) {
         _imageURL = imageURL
         _viewerShown = viewerShown
+        _httpHeaders = State(initialValue: httpHeaders)
+    }
+    
+    func getURLRequest(url: String, headers: [String: String]?) -> URLRequest {
+        let url = URL(string: url)!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        
+        if(headers != nil) {
+            for (key, value) in headers! {
+                print("adding header: \(key): \(value)")
+                request.addValue("\(value)", forHTTPHeaderField: "\(key)")
+            }
+            
+            print("headers found, requesting URL image with headers: \(request.allHTTPHeaderFields)")
+            return request;
+        }
+        else {
+            print("headers nil, requesting URL image with request: \(request)")
+            return request;
+        }
     }
 
     @ViewBuilder
@@ -37,7 +59,7 @@ public struct ImageViewerRemote: View {
                     .zIndex(2)
                     
                     VStack {
-                        URLImage(URL(string: self.imageURL)!) { proxy in
+                        URLImage(getURLRequest(url: self.imageURL, headers: self.httpHeaders)) { proxy in
                         proxy.image
                             .resizable()
                             .aspectRatio(contentMode: .fit)
@@ -50,10 +72,6 @@ public struct ImageViewerRemote: View {
                                     self.dragOffsetPredicted = value.predictedEndTranslation
                                 }
                                 .onEnded { value in
-                                    print(abs(self.dragOffset.height) + abs(self.dragOffset.width))
-                                    print((abs(self.dragOffsetPredicted.height)) / (abs(self.dragOffset.height)))
-                                    print((abs(self.dragOffsetPredicted.width)) / (abs(self.dragOffset.width)))
-                                    
                                     if((abs(self.dragOffset.height) + abs(self.dragOffset.width) > 570) || ((abs(self.dragOffsetPredicted.height)) / (abs(self.dragOffset.height)) > 3) || ((abs(self.dragOffsetPredicted.width)) / (abs(self.dragOffset.width))) > 3) {
                                         self.viewerShown = false
                                         return
