@@ -71,7 +71,13 @@ struct ContentView: View {
 }
 ```
 
+# Compatibility
 
+This package is compatible on iOS 13 and later.
+
+Previous to 1.0.18, this package used Swift tools version 5.2. If you receive an error while trying to use the package, you may be on an older version of Xcode, and should use version 1.0.18 of this package or later.
+
+As of 1.0.18 and later, this package uses Swift tools version 5.1, allowing for compatibility with more Xcode versions.
 
 ## License
 
