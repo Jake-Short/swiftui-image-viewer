@@ -1,11 +1,11 @@
 import SwiftUI
 import UIKit
-import URLImage
 
 @available(iOS 13.0, *)
 public struct ImageViewer: View {
     @Binding var viewerShown: Bool
     @Binding var image: Image
+    @Binding var imageOpt: Image?
     
     @State var dragOffset: CGSize = CGSize.zero
     @State var dragOffsetPredicted: CGSize = CGSize.zero
@@ -13,6 +13,22 @@ public struct ImageViewer: View {
     public init(image: Binding<Image>, viewerShown: Binding<Bool>) {
         _image = image
         _viewerShown = viewerShown
+        _imageOpt = .constant(nil)
+    }
+    
+    public init(image: Binding<Image?>, viewerShown: Binding<Bool>) {
+        _image = .constant(Image(systemName: ""))
+        _imageOpt = image
+        _viewerShown = viewerShown
+    }
+    
+    func getImage() -> Image {
+        if(self.imageOpt == nil) {
+            return self.image
+        }
+        else {
+            return self.imageOpt ?? Image(systemName: "questionmark.diamond")
+        }
     }
 
     @ViewBuilder
@@ -37,7 +53,7 @@ public struct ImageViewer: View {
                     .zIndex(2)
                     
                     VStack {
-                        self.image
+                        self.getImage()
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .offset(x: self.dragOffset.width, y: self.dragOffset.height)
