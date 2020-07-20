@@ -20,43 +20,55 @@ File > Swift Packages > Add Package Dependancy
 # Usage
 
 ### Local Image:
+
+The `image` parameter accepts `Binding<Image>` in all versions. As of 1.0.20, it also accepts `Binding<Image?>`
+
 ```Swift
 import ImageViewer
 
 struct ContentView: View {
     @State var showImageViewer: Bool = true
+    @State var image = Image("example-image")
 	
     var body: some View {
         VStack {
             Text("Example!")
         }
 	.frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(ImageViewer(image: Image("example-image"), viewerShown: self.$showImageViewer))
+        .overlay(ImageViewer(image: self.$image, viewerShown: self.$showImageViewer))
     }
 }
 ```
 
 ### Remote Image:
+
+The `imageURL` parameter accepts `Binding<String>`
+
 ```Swift
 import ImageViewerRemote
 
 struct ContentView: View {
     @State var showImageViewer: Bool = true
+    @State var imgURL: String = "https://..."
 	
     var body: some View {
         VStack {
             Text("Example!")
         }
 	.frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(ImageViewerRemote(imageURL: URL(string: "https://..."), viewerShown: self.$showImageViewer))
+        .overlay(ImageViewerRemote(imageURL: self.$imgURL, viewerShown: self.$showImageViewer))
     }
 }
 ```
 
 # Customization
 
-The remote image can optionally take HTTP headers to include in the URL request. To use them, pass a dictonary to the httpHeaders field. The format should be [Header: Value], both strings.
+### HTTP Headers
+
 #### Availability: 1.0.15 or higher
+
+The remote image viewer allows HTTP headers to be included in the URL request. To use them, pass a dictonary to the httpHeaders field. The format should be [Header: Value], both strings.
+
 Example:
 ```Swift
 import ImageViewerRemote
