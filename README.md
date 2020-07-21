@@ -97,3 +97,7 @@ As of 1.0.18 and later, this package uses Swift tools version 5.1, allowing for 
 ## License
 
 This project is licensed under the MIT license.
+
+## Enjoying this project?
+
+Please consider giving it a star!
