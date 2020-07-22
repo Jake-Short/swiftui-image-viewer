@@ -8,13 +8,16 @@ public struct ImageViewerRemote: View {
     @Binding var imageURL: String
     @State var httpHeaders: [String: String]?
     
+    var aspectRatio: Binding<CGFloat>?
+    
     @State var dragOffset: CGSize = CGSize.zero
     @State var dragOffsetPredicted: CGSize = CGSize.zero
     
-    public init(imageURL: Binding<String>, viewerShown: Binding<Bool>, httpHeaders: [String: String]? = nil) {
+    public init(imageURL: Binding<String>, viewerShown: Binding<Bool>, httpHeaders: [String: String]? = nil, aspectRatio: Binding<CGFloat>? = nil) {
         _imageURL = imageURL
         _viewerShown = viewerShown
         _httpHeaders = State(initialValue: httpHeaders)
+        self.aspectRatio = aspectRatio
     }
     
     func getURLRequest(url: String, headers: [String: String]?) -> URLRequest {
@@ -62,7 +65,7 @@ public struct ImageViewerRemote: View {
                         URLImage(getURLRequest(url: self.imageURL, headers: self.httpHeaders)) { proxy in
                         proxy.image
                             .resizable()
-                            .aspectRatio(contentMode: .fit)
+                            .aspectRatio(self.aspectRatio?.wrappedValue, contentMode: .fit)
                             .offset(x: self.dragOffset.width, y: self.dragOffset.height)
                             .rotationEffect(.init(degrees: Double(self.dragOffset.width / 30)))
                             .pinchToZoom()
