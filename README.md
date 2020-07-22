@@ -86,6 +86,30 @@ struct ContentView: View {
 }
 ```
 
+### Explicit Aspect Ratio
+
+#### Availability: 1.0.21 or higher
+
+An explcit image aspect ratio can be specified, which fixes an issue of incorrect stretching that occurs in certain situations. The `aspectRatio` parameter accepts `Binding<CGFloat>`
+
+Example:
+```Swift
+import ImageViewer
+
+struct ContentView: View {
+    @State var showImageViewer: Bool = true
+    @State var image = Image("example-image")
+	
+    var body: some View {
+        VStack {
+            Text("Example!")
+        }
+	.frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(ImageViewer(image: self.$image, viewerShown: self.$showImageViewer, aspectRatio: .constant(2)))
+    }
+}
+```
+
 # Compatibility
 
 This package is compatible on iOS 13 and later.
