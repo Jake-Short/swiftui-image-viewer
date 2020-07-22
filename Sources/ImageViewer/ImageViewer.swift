@@ -7,19 +7,23 @@ public struct ImageViewer: View {
     @Binding var image: Image
     @Binding var imageOpt: Image?
     
+    var aspectRatio: Binding<CGFloat>?
+    
     @State var dragOffset: CGSize = CGSize.zero
     @State var dragOffsetPredicted: CGSize = CGSize.zero
     
-    public init(image: Binding<Image>, viewerShown: Binding<Bool>) {
+    public init(image: Binding<Image>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil) {
         _image = image
         _viewerShown = viewerShown
         _imageOpt = .constant(nil)
+        self.aspectRatio = aspectRatio
     }
     
-    public init(image: Binding<Image?>, viewerShown: Binding<Bool>) {
+    public init(image: Binding<Image?>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil) {
         _image = .constant(Image(systemName: ""))
         _imageOpt = image
         _viewerShown = viewerShown
+        self.aspectRatio = aspectRatio
     }
     
     func getImage() -> Image {
@@ -55,7 +59,7 @@ public struct ImageViewer: View {
                     VStack {
                         self.getImage()
                             .resizable()
-                            .aspectRatio(contentMode: .fit)
+                            .aspectRatio(self.aspectRatio?.wrappedValue, contentMode: .fit)
                             .offset(x: self.dragOffset.width, y: self.dragOffset.height)
                             .rotationEffect(.init(degrees: Double(self.dragOffset.width / 30)))
                             .pinchToZoom()
@@ -65,10 +69,6 @@ public struct ImageViewer: View {
                                 self.dragOffsetPredicted = value.predictedEndTranslation
                             }
                             .onEnded { value in
-                                print(abs(self.dragOffset.height) + abs(self.dragOffset.width))
-                                print((abs(self.dragOffsetPredicted.height)) / (abs(self.dragOffset.height)))
-                                print((abs(self.dragOffsetPredicted.width)) / (abs(self.dragOffset.width)))
-                                
                                 if((abs(self.dragOffset.height) + abs(self.dragOffset.width) > 570) || ((abs(self.dragOffsetPredicted.height)) / (abs(self.dragOffset.height)) > 3) || ((abs(self.dragOffsetPredicted.width)) / (abs(self.dragOffset.width))) > 3) {
                                     self.viewerShown = false
                                     
