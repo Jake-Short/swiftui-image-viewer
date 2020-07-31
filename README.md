@@ -110,6 +110,29 @@ struct ContentView: View {
 }
 ```
 
+### Disable Cache
+
+#### Availability: 1.0.25 or higher
+
+To disable cache on the remote image viewer, simply pass a `Bool` value to the `disableCache` parameter
+
+Example:
+```Swift
+import ImageViewerRemote
+
+struct ContentView: View {
+    @State var showImageViewer: Bool = true
+	
+    var body: some View {
+        VStack {
+            Text("Example!")
+        }
+	.frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(ImageViewerRemote(imageURL: URL(string: "https://..."), viewerShown: self.$showImageViewer, disableCache: true))
+    }
+}
+```
+
 # Compatibility
 
 This package is compatible on iOS 13 and later.
