@@ -19,6 +19,8 @@ File > Swift Packages > Add Package Dependancy
 
 # Usage
 
+> **Notes on NavigationView:** The `.overlay` modifier only applies to the view it is applied to. Therefore, the `.overlay` modifier *must* be applied to the NavigationView to appear above all elements! If it is applied to a child view, it will appear beneath the title/navigation buttons.
+
 ### Local Image:
 
 The `image` parameter accepts `Binding<Image>` in all versions. As of 1.0.20, it also accepts `Binding<Image?>`
