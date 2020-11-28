@@ -65,29 +65,6 @@ struct ContentView: View {
 
 # Customization
 
-### HTTP Headers
-
-#### Availability: 1.0.15 or higher
-
-The remote image viewer allows HTTP headers to be included in the URL request. To use them, pass a dictonary to the httpHeaders field. The format should be [Header: Value], both strings.
-
-Example:
-```Swift
-import ImageViewerRemote
-
-struct ContentView: View {
-    @State var showImageViewer: Bool = true
-	
-    var body: some View {
-        VStack {
-            Text("Example!")
-        }
-	.frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(ImageViewerRemote(imageURL: URL(string: "https://..."), viewerShown: self.$showImageViewer, httpHeaders: ["X-Powered-By": "Swift!"]))
-    }
-}
-```
-
 ### Explicit Aspect Ratio
 
 #### Availability: 1.0.21 or higher
@@ -131,6 +108,30 @@ struct ContentView: View {
         }
 	.frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(ImageViewerRemote(imageURL: URL(string: "https://..."), viewerShown: self.$showImageViewer, disableCache: true))
+    }
+}
+```
+
+### HTTP Headers
+
+#### Availability: 1.0.15 to 1.0.25
+#### *DEPRECATED*: No longer available as of 2.0.0
+
+The remote image viewer allows HTTP headers to be included in the URL request. To use them, pass a dictonary to the httpHeaders field. The format should be [Header: Value], both strings.
+
+Example:
+```Swift
+import ImageViewerRemote
+
+struct ContentView: View {
+    @State var showImageViewer: Bool = true
+	
+    var body: some View {
+        VStack {
+            Text("Example!")
+        }
+	.frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(ImageViewerRemote(imageURL: URL(string: "https://..."), viewerShown: self.$showImageViewer, httpHeaders: ["X-Powered-By": "Swift!"]))
     }
 }
 ```
