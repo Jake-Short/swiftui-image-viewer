@@ -17,34 +17,21 @@ public struct ImageViewerRemote: View {
     
     @ObservedObject var loader: ImageLoader
     
-    public init(imageURL: Binding<String>, viewerShown: Binding<Bool>, httpHeaders: [String: String]? = nil, aspectRatio: Binding<CGFloat>? = nil, disableCache: Bool? = nil) {
+    public init(imageURL: Binding<String>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, disableCache: Bool? = nil) {
         _imageURL = imageURL
         _viewerShown = viewerShown
-        _httpHeaders = State(initialValue: httpHeaders)
         _disableCache = State(initialValue: disableCache)
         self.aspectRatio = aspectRatio
         
-        loader = ImageLoader(url: imageURL, httpHeaders: httpHeaders)
+        loader = ImageLoader(url: imageURL)
     }
     
-    func getURLRequest(url: String, headers: [String: String]?) -> URLRequest {
+    func getURLRequest(url: String) -> URLRequest {
         let url = URL(string: url)!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         
-        if(headers != nil) {
-            for (key, value) in headers! {
-                print("adding header: \(key): \(value)")
-                request.addValue("\(value)", forHTTPHeaderField: "\(key)")
-            }
-            
-            print("headers found, requesting URL image with headers: \(request.allHTTPHeaderFields)")
-            return request;
-        }
-        else {
-            print("headers nil, requesting URL image with request: \(request)")
-            return request;
-        }
+        return request;
     }
 
     @ViewBuilder
@@ -70,8 +57,8 @@ public struct ImageViewerRemote: View {
                     
                     VStack {
                         if(self.disableCache == nil || self.disableCache == false) {
-                            URLImage(getURLRequest(url: self.imageURL, headers: self.httpHeaders)) { proxy in
-                            proxy.image
+                            URLImage(url: URL(string: self.imageURL)!, content: { image in
+                            image
                                 .resizable()
                                 .aspectRatio(self.aspectRatio?.wrappedValue, contentMode: .fit)
                                 .offset(x: self.dragOffset.width, y: self.dragOffset.height)
@@ -90,7 +77,7 @@ public struct ImageViewerRemote: View {
                                         self.dragOffset = .zero
                                     }
                                 )
-                            }
+                            })
                         }
                         else {
                             if loader.image != nil {
@@ -294,32 +281,18 @@ extension View {
 class ImageLoader: ObservableObject {
     @Published var image: UIImage?
     private let url: Binding<String>
-    private let headers: [String: String]?
     private var cancellable: AnyCancellable?
     
-    func getURLRequest(url: String, headers: [String: String]?) -> URLRequest {
+    func getURLRequest(url: String) -> URLRequest {
         let url = URL(string: url)!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         
-        if(headers != nil) {
-            for (key, value) in headers! {
-                print("adding header: \(key): \(value)")
-                request.addValue("\(value)", forHTTPHeaderField: "\(key)")
-            }
-            
-            print("headers found, requesting URL image with headers: \(request.allHTTPHeaderFields)")
-            return request;
-        }
-        else {
-            print("headers nil, requesting URL image with request: \(request)")
-            return request;
-        }
+        return request;
     }
 
-    init(url: Binding<String>, httpHeaders: [String: String]?) {
+    init(url: Binding<String>) {
         self.url = url
-        self.headers = httpHeaders
         
         load()
     }
@@ -329,7 +302,7 @@ class ImageLoader: ObservableObject {
     }
 
     func load() {
-        cancellable = URLSession.shared.dataTaskPublisher(for: getURLRequest(url: self.url.wrappedValue, headers: self.headers))
+        cancellable = URLSession.shared.dataTaskPublisher(for: getURLRequest(url: self.url.wrappedValue))
             .map { UIImage(data: $0.data) }
             .replaceError(with: nil)
             .receive(on: DispatchQueue.main)
