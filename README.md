@@ -65,6 +65,31 @@ struct ContentView: View {
 
 # Customization
 
+
+### Caption
+
+#### Availability: 2.1.0 or higher
+
+A caption can be added to the image viewer. The caption will appear near the bottom of the image viewer (if the image fills the whole screen the text will appear on top of the image). The `caption` parameter accepts `Text`.
+
+Example:
+```Swift
+import ImageViewer
+
+struct ContentView: View {
+    @State var showImageViewer: Bool = true
+    @State var image = Image("example-image")
+	
+    var body: some View {
+        VStack {
+            Text("Example!")
+        }
+	.frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(ImageViewer(image: self.$image, viewerShown: self.$showImageViewer, caption: Text("This is a caption!")))
+    }
+}
+```
+
 ### Explicit Aspect Ratio
 
 #### Availability: 1.0.21 or higher
