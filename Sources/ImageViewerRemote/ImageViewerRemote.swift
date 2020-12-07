@@ -9,6 +9,7 @@ public struct ImageViewerRemote: View {
     @Binding var imageURL: String
     @State var httpHeaders: [String: String]?
     @State var disableCache: Bool?
+    @State var caption: Text?
     
     var aspectRatio: Binding<CGFloat>?
     
@@ -17,11 +18,12 @@ public struct ImageViewerRemote: View {
     
     @ObservedObject var loader: ImageLoader
     
-    public init(imageURL: Binding<String>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, disableCache: Bool? = nil) {
+    public init(imageURL: Binding<String>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, disableCache: Bool? = nil, caption: Text? = nil) {
         _imageURL = imageURL
         _viewerShown = viewerShown
         _disableCache = State(initialValue: disableCache)
         self.aspectRatio = aspectRatio
+        _caption = State(initialValue: caption)
         
         loader = ImageLoader(url: imageURL)
     }
@@ -56,32 +58,10 @@ public struct ImageViewerRemote: View {
                     .zIndex(2)
                     
                     VStack {
-                        if(self.disableCache == nil || self.disableCache == false) {
-                            URLImage(url: URL(string: self.imageURL)!, content: { image in
-                            image
-                                .resizable()
-                                .aspectRatio(self.aspectRatio?.wrappedValue, contentMode: .fit)
-                                .offset(x: self.dragOffset.width, y: self.dragOffset.height)
-                                .rotationEffect(.init(degrees: Double(self.dragOffset.width / 30)))
-                                .pinchToZoom()
-                                .gesture(DragGesture()
-                                    .onChanged { value in
-                                        self.dragOffset = value.translation
-                                        self.dragOffsetPredicted = value.predictedEndTranslation
-                                    }
-                                    .onEnded { value in
-                                        if((abs(self.dragOffset.height) + abs(self.dragOffset.width) > 570) || ((abs(self.dragOffsetPredicted.height)) / (abs(self.dragOffset.height)) > 3) || ((abs(self.dragOffsetPredicted.width)) / (abs(self.dragOffset.width))) > 3) {
-                                            self.viewerShown = false
-                                            return
-                                        }
-                                        self.dragOffset = .zero
-                                    }
-                                )
-                            })
-                        }
-                        else {
-                            if loader.image != nil {
-                                Image(uiImage: loader.image!)
+                        ZStack {
+                            if(self.disableCache == nil || self.disableCache == false) {
+                                URLImage(url: URL(string: self.imageURL)!, content: { image in
+                                image
                                     .resizable()
                                     .aspectRatio(self.aspectRatio?.wrappedValue, contentMode: .fit)
                                     .offset(x: self.dragOffset.width, y: self.dragOffset.height)
@@ -100,9 +80,56 @@ public struct ImageViewerRemote: View {
                                             self.dragOffset = .zero
                                         }
                                     )
+                                })
                             }
                             else {
-                                Text(":/")
+                                if loader.image != nil {
+                                    Image(uiImage: loader.image!)
+                                        .resizable()
+                                        .aspectRatio(self.aspectRatio?.wrappedValue, contentMode: .fit)
+                                        .offset(x: self.dragOffset.width, y: self.dragOffset.height)
+                                        .rotationEffect(.init(degrees: Double(self.dragOffset.width / 30)))
+                                        .pinchToZoom()
+                                        .gesture(DragGesture()
+                                            .onChanged { value in
+                                                self.dragOffset = value.translation
+                                                self.dragOffsetPredicted = value.predictedEndTranslation
+                                            }
+                                            .onEnded { value in
+                                                if((abs(self.dragOffset.height) + abs(self.dragOffset.width) > 570) || ((abs(self.dragOffsetPredicted.height)) / (abs(self.dragOffset.height)) > 3) || ((abs(self.dragOffsetPredicted.width)) / (abs(self.dragOffset.width))) > 3) {
+                                                    self.viewerShown = false
+                                                    return
+                                                }
+                                                self.dragOffset = .zero
+                                            }
+                                        )
+                                }
+                                else {
+                                    Text(":/")
+                                }
+                            }
+                            
+                            if(self.caption != nil) {
+                                VStack {
+                                    Spacer()
+                                    
+                                    VStack {
+                                        Spacer()
+                                        
+                                        HStack {
+                                            Spacer()
+                                            
+                                            self.caption
+                                                .foregroundColor(.white)
+                                                .multilineTextAlignment(.center)
+                                            
+                                            Spacer()
+                                        }
+                                    }
+                                    .padding()
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                }
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
                             }
                         }
                     }
