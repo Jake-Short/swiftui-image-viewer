@@ -27,14 +27,6 @@ public struct ImageViewerRemote: View {
         
         loader = ImageLoader(url: imageURL)
     }
-    
-    func getURLRequest(url: String) -> URLRequest {
-        let url = URL(string: url)!
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        
-        return request;
-    }
 
     @ViewBuilder
     public var body: some View {
@@ -60,7 +52,7 @@ public struct ImageViewerRemote: View {
                     VStack {
                         ZStack {
                             if(self.disableCache == nil || self.disableCache == false) {
-                                URLImage(url: URL(string: self.imageURL)!, content: { image in
+                                URLImage(url: URL(string: self.imageURL) ?? URL(string: "https://via.placeholder.com/150.png")!, content: { image in
                                 image
                                     .resizable()
                                     .aspectRatio(self.aspectRatio?.wrappedValue, contentMode: .fit)
@@ -321,7 +313,9 @@ class ImageLoader: ObservableObject {
     init(url: Binding<String>) {
         self.url = url
         
-        load()
+        if(url.wrappedValue.count > 0) {
+            load()
+        }
     }
     
     deinit {
