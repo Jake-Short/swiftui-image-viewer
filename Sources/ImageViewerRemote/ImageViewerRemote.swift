@@ -311,7 +311,7 @@ class ImageLoader: ObservableObject {
     private var cancellable: AnyCancellable?
     
     func getURLRequest(url: String) -> URLRequest {
-        let url = URL(string: url)!
+        let url = URL(string: url) ?? URL(string: "https://via.placeholder.com/150.png")!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         
