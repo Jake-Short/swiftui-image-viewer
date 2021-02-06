@@ -136,7 +136,10 @@ struct ContentView: View {
     }
 }
 ```
-
+<details>
+<summary>Deprecated</summary>
+<br>
+	
 ### HTTP Headers
 
 #### Availability: 1.0.15 to 1.0.25
@@ -160,6 +163,7 @@ struct ContentView: View {
     }
 }
 ```
+</details>
 
 # Compatibility
 
