@@ -83,7 +83,7 @@ struct ContentView: View {
         VStack {
             Text("Example!")
         }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(ImageViewer(image: self.$image, viewerShown: self.$showImageViewer, closeButtonTopRight: true))
     }
 }
