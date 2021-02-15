@@ -65,6 +65,30 @@ struct ContentView: View {
 
 # Customization
 
+### Close Button Position
+
+#### Availability: 2.2.0 or higher
+
+The close button can be moved to the top right if desired. The `closeButtonTopRight` parameter accepts `bool`.
+
+Example:
+```Swift
+import ImageViewer
+
+struct ContentView: View {
+    @State var showImageViewer: Bool = true
+    @State var image = Image("example-image")
+    
+    var body: some View {
+        VStack {
+            Text("Example!")
+        }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(ImageViewer(image: self.$image, viewerShown: self.$showImageViewer, closeButtonTopRight: true))
+    }
+}
+```
+
 
 ### Caption
 
