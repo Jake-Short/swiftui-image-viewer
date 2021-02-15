@@ -7,26 +7,29 @@ public struct ImageViewer: View {
     @Binding var image: Image
     @Binding var imageOpt: Image?
     @State var caption: Text?
+    @State var closeButtonTopRight: Bool?
     
     var aspectRatio: Binding<CGFloat>?
     
     @State var dragOffset: CGSize = CGSize.zero
     @State var dragOffsetPredicted: CGSize = CGSize.zero
     
-    public init(image: Binding<Image>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, caption: Text? = nil) {
+    public init(image: Binding<Image>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, caption: Text? = nil, closeButtonTopRight: Bool? = false) {
         _image = image
         _viewerShown = viewerShown
         _imageOpt = .constant(nil)
         self.aspectRatio = aspectRatio
         _caption = State(initialValue: caption)
+        _closeButtonTopRight = State(initialValue: closeButtonTopRight)
     }
     
-    public init(image: Binding<Image?>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, caption: Text? = nil) {
+    public init(image: Binding<Image?>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, caption: Text? = nil, closeButtonTopRight: Bool? = false) {
         _image = .constant(Image(systemName: ""))
         _imageOpt = image
         _viewerShown = viewerShown
         self.aspectRatio = aspectRatio
         _caption = State(initialValue: caption)
+        _closeButtonTopRight = State(initialValue: closeButtonTopRight)
     }
     
     func getImage() -> Image {
@@ -45,13 +48,20 @@ public struct ImageViewer: View {
                 ZStack {
                     VStack {
                         HStack {
+                            
+                            if self.closeButtonTopRight == true {
+                                Spacer()
+                            }
+                            
                             Button(action: { self.viewerShown = false }) {
                                 Image(systemName: "xmark")
                                     .foregroundColor(Color(UIColor.white))
                                     .font(.system(size: UIFontMetrics.default.scaledValue(for: 24)))
                             }
                             
-                            Spacer()
+                            if self.closeButtonTopRight != true {
+                                Spacer()
+                            }
                         }
                         
                         Spacer()

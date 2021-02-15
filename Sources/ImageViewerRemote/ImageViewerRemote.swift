@@ -10,6 +10,7 @@ public struct ImageViewerRemote: View {
     @State var httpHeaders: [String: String]?
     @State var disableCache: Bool?
     @State var caption: Text?
+    @State var closeButtonTopRight: Bool?
     
     var aspectRatio: Binding<CGFloat>?
     
@@ -18,12 +19,13 @@ public struct ImageViewerRemote: View {
     
     @ObservedObject var loader: ImageLoader
     
-    public init(imageURL: Binding<String>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, disableCache: Bool? = nil, caption: Text? = nil) {
+    public init(imageURL: Binding<String>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, disableCache: Bool? = nil, caption: Text? = nil, closeButtonTopRight: Bool? = false) {
         _imageURL = imageURL
         _viewerShown = viewerShown
         _disableCache = State(initialValue: disableCache)
         self.aspectRatio = aspectRatio
         _caption = State(initialValue: caption)
+        _closeButtonTopRight = State(initialValue: closeButtonTopRight)
         
         loader = ImageLoader(url: imageURL)
     }
@@ -35,13 +37,21 @@ public struct ImageViewerRemote: View {
                 ZStack {
                     VStack {
                         HStack {
+                              
+                            if self.closeButtonTopRight == true {
+                                Spacer()
+                            }
+                            
                             Button(action: { self.viewerShown = false }) {
                                 Image(systemName: "xmark")
                                     .foregroundColor(Color(UIColor.white))
                                     .font(.system(size: UIFontMetrics.default.scaledValue(for: 24)))
                             }
                             
-                            Spacer()
+                            
+                            if self.closeButtonTopRight != true {
+                                Spacer()
+                            }
                         }
                         
                         Spacer()
