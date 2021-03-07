@@ -12,6 +12,8 @@ public struct ImageViewerRemote: View {
     @State var caption: Text?
     @State var closeButtonTopRight: Bool?
     
+    @Binding var imageURLArray: [String]?
+    
     var aspectRatio: Binding<CGFloat>?
     
     @State var dragOffset: CGSize = CGSize.zero
@@ -27,8 +29,26 @@ public struct ImageViewerRemote: View {
         _caption = State(initialValue: caption)
         _closeButtonTopRight = State(initialValue: closeButtonTopRight)
         
+        _imageURLArray = .constant([])
+        
         loader = ImageLoader(url: imageURL)
     }
+    
+    public init(imageURLArray: Binding<[String]?>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, disableCache: Bool? = nil, caption: Text? = nil, closeButtonTopRight: Bool? = false) {
+        _imageURLArray = imageURLArray
+        _viewerShown = viewerShown
+        _disableCache = State(initialValue: disableCache)
+        self.aspectRatio = aspectRatio
+        _caption = State(initialValue: caption)
+        _closeButtonTopRight = State(initialValue: closeButtonTopRight)
+        
+        _imageURL = .constant("")
+        
+        loader = ImageLoader(url: .constant(imageURLArray.wrappedValue?.first ?? ""))
+    }
+    
+    @State private var index: Int = 0
+    @State private var offset = CGFloat.zero
 
     @ViewBuilder
     public var body: some View {
@@ -61,55 +81,29 @@ public struct ImageViewerRemote: View {
                     
                     VStack {
                         ZStack {
-                            if(self.disableCache == nil || self.disableCache == false) {
-                                URLImage(url: URL(string: self.imageURL) ?? URL(string: "https://via.placeholder.com/150.png")!, content: { image in
-                                image
-                                    .resizable()
-                                    .aspectRatio(self.aspectRatio?.wrappedValue, contentMode: .fit)
-                                    .offset(x: self.dragOffset.width, y: self.dragOffset.height)
-                                    .rotationEffect(.init(degrees: Double(self.dragOffset.width / 30)))
-                                    .pinchToZoom()
-                                    .gesture(DragGesture()
-                                        .onChanged { value in
-                                            self.dragOffset = value.translation
-                                            self.dragOffsetPredicted = value.predictedEndTranslation
+                            URLImage(url: URL(string: self.imageURL) ?? URL(string: "https://via.placeholder.com/150.png")!, options: URLImageOptions(
+                                cachePolicy: (self.disableCache == nil || self.disableCache == false) ? .returnCacheElseLoad() : .ignoreCache(delay: 0)
+                            ), content: { image in
+                            image
+                                .resizable()
+                                .aspectRatio(self.aspectRatio?.wrappedValue, contentMode: .fit)
+                                .offset(x: self.dragOffset.width, y: self.dragOffset.height)
+                                .rotationEffect(.init(degrees: Double(self.dragOffset.width / 30)))
+                                .pinchToZoom()
+                                .gesture(DragGesture()
+                                    .onChanged { value in
+                                        self.dragOffset = value.translation
+                                        self.dragOffsetPredicted = value.predictedEndTranslation
+                                    }
+                                    .onEnded { value in
+                                        if((abs(self.dragOffset.height) + abs(self.dragOffset.width) > 570) || ((abs(self.dragOffsetPredicted.height)) / (abs(self.dragOffset.height)) > 3) || ((abs(self.dragOffsetPredicted.width)) / (abs(self.dragOffset.width))) > 3) {
+                                            self.viewerShown = false
+                                            return
                                         }
-                                        .onEnded { value in
-                                            if((abs(self.dragOffset.height) + abs(self.dragOffset.width) > 570) || ((abs(self.dragOffsetPredicted.height)) / (abs(self.dragOffset.height)) > 3) || ((abs(self.dragOffsetPredicted.width)) / (abs(self.dragOffset.width))) > 3) {
-                                                self.viewerShown = false
-                                                return
-                                            }
-                                            self.dragOffset = .zero
-                                        }
-                                    )
-                                })
-                            }
-                            else {
-                                if loader.image != nil {
-                                    Image(uiImage: loader.image!)
-                                        .resizable()
-                                        .aspectRatio(self.aspectRatio?.wrappedValue, contentMode: .fit)
-                                        .offset(x: self.dragOffset.width, y: self.dragOffset.height)
-                                        .rotationEffect(.init(degrees: Double(self.dragOffset.width / 30)))
-                                        .pinchToZoom()
-                                        .gesture(DragGesture()
-                                            .onChanged { value in
-                                                self.dragOffset = value.translation
-                                                self.dragOffsetPredicted = value.predictedEndTranslation
-                                            }
-                                            .onEnded { value in
-                                                if((abs(self.dragOffset.height) + abs(self.dragOffset.width) > 570) || ((abs(self.dragOffsetPredicted.height)) / (abs(self.dragOffset.height)) > 3) || ((abs(self.dragOffsetPredicted.width)) / (abs(self.dragOffset.width))) > 3) {
-                                                    self.viewerShown = false
-                                                    return
-                                                }
-                                                self.dragOffset = .zero
-                                            }
-                                        )
-                                }
-                                else {
-                                    Text(":/")
-                                }
-                            }
+                                        self.dragOffset = .zero
+                                    }
+                                )
+                            })
                             
                             if(self.caption != nil) {
                                 VStack {
@@ -145,8 +139,117 @@ public struct ImageViewerRemote: View {
                     self.dragOffsetPredicted = .zero
                 }
             }
+            else if(viewerShown && imageURLArray?.count ?? 0 > 0) {
+                ZStack {
+                    VStack {
+                        HStack {
+                              
+                            if self.closeButtonTopRight == true {
+                                Spacer()
+                            }
+                            
+                            Button(action: { self.viewerShown = false }) {
+                                Image(systemName: "xmark")
+                                    .foregroundColor(Color(UIColor.white))
+                                    .font(.system(size: UIFontMetrics.default.scaledValue(for: 24)))
+                            }
+                            
+                            
+                            if self.closeButtonTopRight != true {
+                                Spacer()
+                            }
+                        }
+                        
+                        Spacer()
+                    }
+                    .padding()
+                    .zIndex(2)
+                    
+                    GeometryReader { g in
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 0) {
+                                ForEach(self.imageURLArray ?? [], id: \.self) { image in
+                                    VStack {
+                                        ZStack {
+                                            URLImage(url: URL(string: image) ?? URL(string: "https://via.placeholder.com/150.png")!, options: URLImageOptions(
+                                                cachePolicy: (self.disableCache == nil || self.disableCache == false) ? .returnCacheElseLoad() : .ignoreCache(delay: 0)
+                                            ), content: { image in
+                                            image
+                                                .resizable()
+                                                .aspectRatio(self.aspectRatio?.wrappedValue, contentMode: .fit)
+                                                .offset(x: self.dragOffset.width, y: self.dragOffset.height)
+                                                .rotationEffect(.init(degrees: Double(self.dragOffset.width / 30)))
+                                                .pinchToZoom()
+                                            })
+                                            
+                                            if(self.caption != nil) {
+                                                VStack {
+                                                    Spacer()
+                                                    
+                                                    VStack {
+                                                        Spacer()
+                                                        
+                                                        HStack {
+                                                            Spacer()
+                                                            
+                                                            self.caption
+                                                                .foregroundColor(.white)
+                                                                .multilineTextAlignment(.center)
+                                                            
+                                                            Spacer()
+                                                        }
+                                                    }
+                                                    .padding()
+                                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                                }
+                                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                            }
+                                        }
+                                    }
+                                    .frame(width: g.size.width, height: g.size.height)
+                                    .background(Color(red: 0.12, green: 0.12, blue: 0.12, opacity: (1.0 - Double(abs(self.dragOffset.width) + abs(self.dragOffset.height)) / 1000)).edgesIgnoringSafeArea(.all))
+                                    .zIndex(1)
+                                }
+                            }
+                        }
+                        .content.offset(x: self.offset)
+                        .gesture(DragGesture()
+                            .onChanged({ value in
+                                self.offset = value.translation.width - g.size.width * CGFloat(self.index)
+                                
+                                if(abs(value.startLocation.y - value.location.y) > 45) {
+                                    self.dragOffset = value.translation
+                                    self.dragOffsetPredicted = value.predictedEndTranslation
+                                }
+                            })
+                            .onEnded({ value in
+                                if abs(value.predictedEndTranslation.width) >= g.size.width / 2 {
+                                    var nextIndex: Int = (value.predictedEndTranslation.width < 0) ? 1 : -1
+                                    nextIndex += self.index
+                                    if nextIndex >= self.imageURLArray?.endIndex ?? 1 - 1 {
+                                        return;
+                                    }
+                                    self.index = nextIndex
+                                }
+                                withAnimation { self.offset = -g.size.width * CGFloat(self.index) }
+                                
+                                if((abs(self.dragOffset.height) + abs(self.dragOffset.width) > 570) || ((abs(self.dragOffsetPredicted.height)) / (abs(self.dragOffset.height)) > 3) || ((abs(self.dragOffsetPredicted.width)) / (abs(self.dragOffset.width))) > 3) {
+                                    self.viewerShown = false
+                                    return
+                                }
+                                self.dragOffset = .zero
+                            })
+                        )
+                        .frame(width: g.size.width, alignment: .leading)
+                    }
+                }
+                .transition(AnyTransition.opacity.animation(.easeInOut(duration: 0.2)))
+                .onAppear() {
+                    self.dragOffset = .zero
+                    self.dragOffsetPredicted = .zero
+                }
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 

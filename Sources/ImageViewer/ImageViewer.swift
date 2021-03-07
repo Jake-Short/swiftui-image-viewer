@@ -9,6 +9,8 @@ public struct ImageViewer: View {
     @State var caption: Text?
     @State var closeButtonTopRight: Bool?
     
+    @Binding var imageArray: [Image]?
+    
     var aspectRatio: Binding<CGFloat>?
     
     @State var dragOffset: CGSize = CGSize.zero
@@ -21,6 +23,8 @@ public struct ImageViewer: View {
         self.aspectRatio = aspectRatio
         _caption = State(initialValue: caption)
         _closeButtonTopRight = State(initialValue: closeButtonTopRight)
+        
+        _imageArray = .constant([])
     }
     
     public init(image: Binding<Image?>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, caption: Text? = nil, closeButtonTopRight: Bool? = false) {
@@ -30,6 +34,19 @@ public struct ImageViewer: View {
         self.aspectRatio = aspectRatio
         _caption = State(initialValue: caption)
         _closeButtonTopRight = State(initialValue: closeButtonTopRight)
+        
+        _imageArray = .constant([])
+    }
+    
+    public init(imageArray: Binding<[Image]?>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, caption: Text? = nil, closeButtonTopRight: Bool? = false) {
+        _image = .constant(Image(systemName: ""))
+        _imageOpt = .constant(nil)
+        _viewerShown = viewerShown
+        self.aspectRatio = aspectRatio
+        _caption = State(initialValue: caption)
+        _closeButtonTopRight = State(initialValue: closeButtonTopRight)
+        
+        _imageArray = imageArray
     }
     
     func getImage() -> Image {
@@ -40,11 +57,14 @@ public struct ImageViewer: View {
             return self.imageOpt ?? Image(systemName: "questionmark.diamond")
         }
     }
+    
+    @State private var index: Int = 0
+    @State private var offset = CGFloat.zero
 
     @ViewBuilder
     public var body: some View {
         VStack {
-            if(viewerShown) {
+            if(viewerShown && imageArray?.count ?? 0 == 0) {
                 ZStack {
                     VStack {
                         HStack {
@@ -119,6 +139,111 @@ public struct ImageViewer: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color(red: 0.12, green: 0.12, blue: 0.12, opacity: (1.0 - Double(abs(self.dragOffset.width) + abs(self.dragOffset.height)) / 1000)).edgesIgnoringSafeArea(.all))
                     .zIndex(1)
+                }
+                .transition(AnyTransition.opacity.animation(.easeInOut(duration: 0.2)))
+                .onAppear() {
+                    self.dragOffset = .zero
+                    self.dragOffsetPredicted = .zero
+                }
+            }
+            else if(viewerShown && imageArray?.count ?? 0 > 0) {
+                ZStack {
+                    VStack {
+                        HStack {
+                              
+                            if self.closeButtonTopRight == true {
+                                Spacer()
+                            }
+                            
+                            Button(action: { self.viewerShown = false }) {
+                                Image(systemName: "xmark")
+                                    .foregroundColor(Color(UIColor.white))
+                                    .font(.system(size: UIFontMetrics.default.scaledValue(for: 24)))
+                            }
+                            
+                            
+                            if self.closeButtonTopRight != true {
+                                Spacer()
+                            }
+                        }
+                        
+                        Spacer()
+                    }
+                    .padding()
+                    .zIndex(2)
+                    
+                    GeometryReader { g in
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 0) {
+                                ForEach(0 ..< self.imageArray!.count) { index in
+                                    VStack {
+                                        ZStack {
+                                            self.imageArray![index]
+                                                .resizable()
+                                                .aspectRatio(self.aspectRatio?.wrappedValue, contentMode: .fit)
+                                                .offset(x: self.dragOffset.width, y: self.dragOffset.height)
+                                                .rotationEffect(.init(degrees: Double(self.dragOffset.width / 30)))
+                                                .pinchToZoom()
+                                            
+                                            if(self.caption != nil) {
+                                                VStack {
+                                                    Spacer()
+                                                    
+                                                    VStack {
+                                                        Spacer()
+                                                        
+                                                        HStack {
+                                                            Spacer()
+                                                            
+                                                            self.caption
+                                                                .foregroundColor(.white)
+                                                                .multilineTextAlignment(.center)
+                                                            
+                                                            Spacer()
+                                                        }
+                                                    }
+                                                    .padding()
+                                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                                }
+                                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                            }
+                                        }
+                                    }
+                                    .frame(width: g.size.width, height: g.size.height)
+                                    .background(Color(red: 0.12, green: 0.12, blue: 0.12, opacity: (1.0 - Double(abs(self.dragOffset.width) + abs(self.dragOffset.height)) / 1000)).edgesIgnoringSafeArea(.all))
+                                    .zIndex(1)
+                                }
+                            }
+                        }
+                        .content.offset(x: self.offset)
+                        .gesture(DragGesture()
+                            .onChanged({ value in
+                                self.offset = value.translation.width - g.size.width * CGFloat(self.index)
+                                
+                                if(abs(value.startLocation.y - value.location.y) > 45) {
+                                    self.dragOffset = value.translation
+                                    self.dragOffsetPredicted = value.predictedEndTranslation
+                                }
+                            })
+                            .onEnded({ value in
+                                if abs(value.predictedEndTranslation.width) >= g.size.width / 2 {
+                                    var nextIndex: Int = (value.predictedEndTranslation.width < 0) ? 1 : -1
+                                    nextIndex += self.index
+                                    if !(nextIndex >= self.imageArray?.endIndex ?? 1 - 1) {
+                                        self.index = nextIndex
+                                    }
+                                }
+                                withAnimation { self.offset = -g.size.width * CGFloat(self.index) }
+                                
+                                if((abs(self.dragOffset.height) + abs(self.dragOffset.width) > 570) || ((abs(self.dragOffsetPredicted.height)) / (abs(self.dragOffset.height)) > 3) || ((abs(self.dragOffsetPredicted.width)) / (abs(self.dragOffset.width))) > 3) {
+                                    self.viewerShown = false
+                                    return
+                                }
+                                self.dragOffset = .zero
+                            })
+                        )
+                        .frame(width: g.size.width, alignment: .leading)
+                    }
                 }
                 .transition(AnyTransition.opacity.animation(.easeInOut(duration: 0.2)))
                 .onAppear() {
