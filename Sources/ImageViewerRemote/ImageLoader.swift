@@ -3,7 +3,7 @@ import Combine
 
 class ImageLoader: ObservableObject {
     @Published var image: UIImage?
-    private let url: Binding<String>
+    private let url: String
     private var cancellable: AnyCancellable?
     
     func getURLRequest(url: String) -> URLRequest {
@@ -14,10 +14,10 @@ class ImageLoader: ObservableObject {
         return request;
     }
     
-    init(url: Binding<String>) {
+    init(url: String) {
         self.url = url
         
-        if(url.wrappedValue.count > 0) {
+        if !url.isEmpty {
             load()
         }
     }
@@ -27,7 +27,7 @@ class ImageLoader: ObservableObject {
     }
     
     func load() {
-        cancellable = URLSession.shared.dataTaskPublisher(for: getURLRequest(url: self.url.wrappedValue))
+        cancellable = URLSession.shared.dataTaskPublisher(for: getURLRequest(url: url))
             .map { UIImage(data: $0.data) }
             .replaceError(with: nil)
             .receive(on: DispatchQueue.main)
