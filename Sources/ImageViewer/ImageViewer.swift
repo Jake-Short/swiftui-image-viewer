@@ -88,7 +88,9 @@ public struct ImageViewer: View {
                                         
                                         return
                                     }
-                                    self.dragOffset = .zero
+                                    withAnimation(.interactiveSpring()) {
+                                        self.dragOffset = .zero
+                                    }
                                 }
                             )
                             
@@ -273,7 +275,6 @@ struct PinchToZoom: ViewModifier {
         content
             .scaleEffect(scale, anchor: anchor)
             .offset(offset)
-            .animation(isPinching ? .none : .spring())
             .overlay(PinchZoom(scale: $scale, anchor: $anchor, offset: $offset, isPinching: $isPinching))
     }
 }
