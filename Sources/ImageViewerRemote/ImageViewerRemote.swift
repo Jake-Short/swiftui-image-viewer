@@ -76,10 +76,15 @@ public struct ImageViewerRemote: View {
                                         }
                                         .onEnded { value in
                                             if((abs(self.dragOffset.height) + abs(self.dragOffset.width) > 570) || ((abs(self.dragOffsetPredicted.height)) / (abs(self.dragOffset.height)) > 3) || ((abs(self.dragOffsetPredicted.width)) / (abs(self.dragOffset.width))) > 3) {
+                                                withAnimation(.spring()) {
+                                                    self.dragOffset = self.dragOffsetPredicted
+                                                }
                                                 self.viewerShown = false
                                                 return
                                             }
-                                            self.dragOffset = .zero
+                                            withAnimation(.interactiveSpring()) {
+                                                self.dragOffset = .zero
+                                            }
                                         }
                                     )
                                 })
@@ -99,10 +104,15 @@ public struct ImageViewerRemote: View {
                                             }
                                             .onEnded { value in
                                                 if((abs(self.dragOffset.height) + abs(self.dragOffset.width) > 570) || ((abs(self.dragOffsetPredicted.height)) / (abs(self.dragOffset.height)) > 3) || ((abs(self.dragOffsetPredicted.width)) / (abs(self.dragOffset.width))) > 3) {
+                                                    withAnimation(.spring()) {
+                                                        self.dragOffset = self.dragOffsetPredicted
+                                                    }
                                                     self.viewerShown = false
                                                     return
                                                 }
-                                                self.dragOffset = .zero
+                                                withAnimation(.interactiveSpring()) {
+                                                    self.dragOffset = .zero
+                                                }
                                             }
                                         )
                                 }
@@ -291,7 +301,6 @@ struct PinchToZoom: ViewModifier {
         content
             .scaleEffect(scale, anchor: anchor)
             .offset(offset)
-            .animation(isPinching ? .none : .spring())
             .overlay(PinchZoom(scale: $scale, anchor: $anchor, offset: $offset, isPinching: $isPinching))
     }
 }
