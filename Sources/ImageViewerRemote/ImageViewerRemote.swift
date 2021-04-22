@@ -11,6 +11,10 @@ public struct ImageViewerRemote: View {
     @State var disableCache: Bool?
     @State var caption: Text?
     @State var closeButtonTopRight: Bool?
+    @State var zoomSnapBack: Bool?
+    
+    @State var scale: CGFloat = 1
+    @State var offset: CGSize = .zero
     
     var aspectRatio: Binding<CGFloat>?
     
@@ -19,13 +23,14 @@ public struct ImageViewerRemote: View {
     
     @ObservedObject var loader: ImageLoader
     
-    public init(imageURL: Binding<String>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, disableCache: Bool? = nil, caption: Text? = nil, closeButtonTopRight: Bool? = false) {
+    public init(imageURL: Binding<String>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, disableCache: Bool? = nil, caption: Text? = nil, closeButtonTopRight: Bool? = false, zoomSnapBack: Bool? = true) {
         _imageURL = imageURL
         _viewerShown = viewerShown
         _disableCache = State(initialValue: disableCache)
         self.aspectRatio = aspectRatio
         _caption = State(initialValue: caption)
         _closeButtonTopRight = State(initialValue: closeButtonTopRight)
+        _zoomSnapBack = State(initialValue: zoomSnapBack)
         
         loader = ImageLoader(url: imageURL)
     }
@@ -68,7 +73,6 @@ public struct ImageViewerRemote: View {
                                     .aspectRatio(self.aspectRatio?.wrappedValue, contentMode: .fit)
                                     .offset(x: self.dragOffset.width, y: self.dragOffset.height)
                                     .rotationEffect(.init(degrees: Double(self.dragOffset.width / 30)))
-                                    .pinchToZoom()
                                     .gesture(DragGesture()
                                         .onChanged { value in
                                             self.dragOffset = value.translation
@@ -96,7 +100,6 @@ public struct ImageViewerRemote: View {
                                         .aspectRatio(self.aspectRatio?.wrappedValue, contentMode: .fit)
                                         .offset(x: self.dragOffset.width, y: self.dragOffset.height)
                                         .rotationEffect(.init(degrees: Double(self.dragOffset.width / 30)))
-                                        .pinchToZoom()
                                         .gesture(DragGesture()
                                             .onChanged { value in
                                                 self.dragOffset = value.translation
@@ -144,6 +147,16 @@ public struct ImageViewerRemote: View {
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                             }
                         }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .pinchToZoom(zoomSnapBack: self.$zoomSnapBack, scale: self.$scale, offset: self.$offset)
+                        .onTapGesture(count: 2) {
+                            if (self.zoomSnapBack == false) {
+                                withAnimation {
+                                    self.scale = 1
+                                    self.offset = .zero
+                                }
+                            }
+                        }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color(red: 0.12, green: 0.12, blue: 0.12, opacity: (1.0 - Double(abs(self.dragOffset.width) + abs(self.dragOffset.height)) / 1000)).edgesIgnoringSafeArea(.all))
@@ -187,12 +200,18 @@ class PinchZoomView: UIView {
             delegate?.pinchZoomView(self, didChangePinching: isPinching)
         }
     }
+    
+    @Binding var zoomSnapBack: Bool?
 
     private var startLocation: CGPoint = .zero
     private var location: CGPoint = .zero
     private var numberOfTouches: Int = 0
+    
+    private var oldScale: CGFloat = 0
 
-    init() {
+    init(zoomSnapBack: Binding<Bool?>) {
+        _zoomSnapBack = zoomSnapBack
+        
         super.init(frame: .zero)
 
         let pinchGesture = UIPinchGestureRecognizer(target: self, action: #selector(pinch(gesture:)))
@@ -208,10 +227,18 @@ class PinchZoomView: UIView {
 
         switch gesture.state {
         case .began:
-            isPinching = true
-            startLocation = gesture.location(in: self)
-            anchor = UnitPoint(x: startLocation.x / bounds.width, y: startLocation.y / bounds.height)
-            numberOfTouches = gesture.numberOfTouches
+            if(oldScale > .zero) {
+                isPinching = true
+                startLocation = gesture.location(in: self)
+                //anchor = UnitPoint(x: (startLocation.x / bounds.width), y: (startLocation.y / bounds.height))
+                numberOfTouches = gesture.numberOfTouches
+            }
+            else {
+                isPinching = true
+                startLocation = gesture.location(in: self)
+                anchor = UnitPoint(x: startLocation.x / bounds.width, y: startLocation.y / bounds.height)
+                numberOfTouches = gesture.numberOfTouches
+            }
 
         case .changed:
             if gesture.numberOfTouches != numberOfTouches {
@@ -222,19 +249,48 @@ class PinchZoomView: UIView {
 
                 numberOfTouches = gesture.numberOfTouches
             }
-
-            scale = gesture.scale
+            
+            if(oldScale > .zero) {
+                if(gesture.scale > 1) {
+                    scale = gesture.scale + oldScale
+                }
+                else {
+                    withAnimation {
+                        scale = gesture.scale
+                    }
+                }
+            }
+            else {
+                scale = gesture.scale
+            }
 
             location = gesture.location(in: self)
             offset = CGSize(width: location.x - startLocation.x, height: location.y - startLocation.y)
 
         case .ended, .cancelled, .failed:
-            withAnimation(.interactiveSpring()) {
-                 isPinching = false
-                 scale = 1.0
-                 anchor = .center
-                 offset = .zero
-             }
+            if zoomSnapBack == true {
+                withAnimation(.interactiveSpring()) {
+                    isPinching = false
+                    scale = 1.0
+                    anchor = .center
+                    offset = .zero
+                    oldScale = .zero
+                }
+            }
+            else {
+                if gesture.scale < 1 {
+                    withAnimation(.interactiveSpring()) {
+                        isPinching = false
+                        scale = 1.0
+                        anchor = .center
+                        offset = .zero
+                        oldScale = .zero
+                    }
+                }
+                else {
+                    oldScale = gesture.scale
+                }
+            }
         default:
             break
         }
@@ -255,13 +311,14 @@ struct PinchZoom: UIViewRepresentable {
     @Binding var anchor: UnitPoint
     @Binding var offset: CGSize
     @Binding var isPinching: Bool
+    @Binding var zoomSnapBack: Bool?
 
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
 
     func makeUIView(context: Context) -> PinchZoomView {
-        let pinchZoomView = PinchZoomView()
+        let pinchZoomView = PinchZoomView(zoomSnapBack: self.$zoomSnapBack)
         pinchZoomView.delegate = context.coordinator
         return pinchZoomView
     }
@@ -294,22 +351,24 @@ struct PinchZoom: UIViewRepresentable {
 }
 
 struct PinchToZoom: ViewModifier {
-    @State var scale: CGFloat = 1.0
+    @Binding var scale: CGFloat
     @State var anchor: UnitPoint = .center
-    @State var offset: CGSize = .zero
+    @Binding var offset: CGSize
     @State var isPinching: Bool = false
+    
+    @Binding var zoomSnapBack: Bool?
 
     func body(content: Content) -> some View {
         content
             .scaleEffect(scale, anchor: anchor)
             .offset(offset)
-            .overlay(PinchZoom(scale: $scale, anchor: $anchor, offset: $offset, isPinching: $isPinching))
+            .overlay(PinchZoom(scale: $scale, anchor: $anchor, offset: $offset, isPinching: $isPinching, zoomSnapBack: $zoomSnapBack))
     }
 }
 
 extension View {
-    func pinchToZoom() -> some View {
-        self.modifier(PinchToZoom())
+    func pinchToZoom(zoomSnapBack: Binding<Bool?>, scale: Binding<CGFloat>, offset: Binding<CGSize>) -> some View {
+        self.modifier(PinchToZoom(scale: scale, offset: offset, zoomSnapBack: zoomSnapBack))
     }
 }
 
