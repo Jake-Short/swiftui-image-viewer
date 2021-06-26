@@ -47,36 +47,38 @@ public struct ImageViewer: View {
         VStack {
             if(viewerShown) {
                 ZStack {
-                    VStack {
-                        if self.closeButtonAlignment == CloseButtonAlignment.bottomLeft &&
-                            self.closeButtonAlignment == CloseButtonAlignment.bottomRight {
-                            Spacer()
-                        }
-                        HStack {
-                            
-                            if self.closeButtonAlignment == CloseButtonAlignment.topRight ||
+                    if self.closeButtonAlignment != CloseButtonAlignment.none {
+                        VStack {
+                            if self.closeButtonAlignment == CloseButtonAlignment.bottomLeft &&
                                 self.closeButtonAlignment == CloseButtonAlignment.bottomRight {
                                 Spacer()
                             }
-                            
-                            Button(action: { self.viewerShown = false }) {
-                                Image(systemName: "xmark")
-                                    .foregroundColor(Color(UIColor.white))
-                                    .font(.system(size: UIFontMetrics.default.scaledValue(for: 24)))
+                            HStack {
+                                
+                                if self.closeButtonAlignment == CloseButtonAlignment.topRight ||
+                                    self.closeButtonAlignment == CloseButtonAlignment.bottomRight {
+                                    Spacer()
+                                }
+                                
+                                Button(action: { self.viewerShown = false }) {
+                                    Image(systemName: "xmark")
+                                        .foregroundColor(Color(UIColor.white))
+                                        .font(.system(size: UIFontMetrics.default.scaledValue(for: 24)))
+                                }
+                                
+                                if self.closeButtonAlignment == CloseButtonAlignment.topLeft ||
+                                    self.closeButtonAlignment == CloseButtonAlignment.bottomLeft {
+                                    Spacer()
+                                }
                             }
-                            
-                            if self.closeButtonAlignment == CloseButtonAlignment.topLeft ||
-                                self.closeButtonAlignment == CloseButtonAlignment.bottomLeft {
+                            if self.closeButtonAlignment == CloseButtonAlignment.topLeft &&
+                                self.closeButtonAlignment == CloseButtonAlignment.topRight {
                                 Spacer()
                             }
                         }
-                        if self.closeButtonAlignment == CloseButtonAlignment.topLeft &&
-                            self.closeButtonAlignment == CloseButtonAlignment.topRight {
-                            Spacer()
-                        }
+                        .padding()
+                        .zIndex(2)
                     }
-                    .padding()
-                    .zIndex(2)
                     
                     VStack {
                         ZStack {
