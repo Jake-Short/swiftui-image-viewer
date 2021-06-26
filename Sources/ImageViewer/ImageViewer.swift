@@ -49,7 +49,7 @@ public struct ImageViewer: View {
                 ZStack {
                     if self.closeButtonAlignment != CloseButtonAlignment.none {
                         VStack {
-                            if self.closeButtonAlignment == CloseButtonAlignment.bottomLeft &&
+                            if self.closeButtonAlignment == CloseButtonAlignment.bottomLeft ||
                                 self.closeButtonAlignment == CloseButtonAlignment.bottomRight {
                                 Spacer()
                             }
@@ -71,7 +71,7 @@ public struct ImageViewer: View {
                                     Spacer()
                                 }
                             }
-                            if self.closeButtonAlignment == CloseButtonAlignment.topLeft &&
+                            if self.closeButtonAlignment == CloseButtonAlignment.topLeft ||
                                 self.closeButtonAlignment == CloseButtonAlignment.topRight {
                                 Spacer()
                             }
