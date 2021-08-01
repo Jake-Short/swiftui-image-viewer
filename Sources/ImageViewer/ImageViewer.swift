@@ -47,7 +47,7 @@ public struct ImageViewer: View {
         VStack {
             if(viewerShown) {
                 ZStack {
-                    if self.closeButtonAlignment != CloseButtonAlignment.none {
+                    if self.closeButtonAlignment != CloseButtonAlignment.hide {
                         VStack {
                             if self.closeButtonAlignment == CloseButtonAlignment.bottomLeft ||
                                 self.closeButtonAlignment == CloseButtonAlignment.bottomRight {
@@ -307,5 +307,5 @@ public enum CloseButtonAlignment {
     case topRight
     case bottomLeft
     case bottomRight
-    case none
+    case hide
 }

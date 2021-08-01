@@ -35,7 +35,7 @@ public struct ImageViewerRemote: View {
         VStack {
             if(viewerShown && imageURL.count > 0) {
                 ZStack {
-                    if self.closeButtonAlignment != CloseButtonAlignment.none {
+                    if self.closeButtonAlignment != CloseButtonAlignment.hide {
                         VStack {
                             if self.closeButtonAlignment == CloseButtonAlignment.bottomLeft ||
                                 self.closeButtonAlignment == CloseButtonAlignment.bottomRight {
@@ -373,5 +373,5 @@ public enum CloseButtonAlignment {
     case topRight
     case bottomLeft
     case bottomRight
-    case none
+    case hide
 }
