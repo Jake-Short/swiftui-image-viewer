@@ -10,7 +10,7 @@ public struct ImageViewerRemote: View {
     @State var httpHeaders: [String: String]?
     @State var disableCache: Bool?
     @State var caption: Text?
-    @State var closeButtonTopRight: Bool?
+    @State var closeButtonAlignment: CloseButtonAlignment? = CloseButtonAlignment.topLeft
     
     var aspectRatio: Binding<CGFloat>?
     
@@ -19,13 +19,13 @@ public struct ImageViewerRemote: View {
     
     @ObservedObject var loader: ImageLoader
     
-    public init(imageURL: Binding<String>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, disableCache: Bool? = nil, caption: Text? = nil, closeButtonTopRight: Bool? = false) {
+    public init(imageURL: Binding<String>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, disableCache: Bool? = nil, caption: Text? = nil, closeButtonAlignment: CloseButtonAlignment?) {
         _imageURL = imageURL
         _viewerShown = viewerShown
         _disableCache = State(initialValue: disableCache)
         self.aspectRatio = aspectRatio
         _caption = State(initialValue: caption)
-        _closeButtonTopRight = State(initialValue: closeButtonTopRight)
+        _closeButtonAlignment = State(initialValue: closeButtonAlignment)
         
         loader = ImageLoader(url: imageURL)
     }
@@ -35,29 +35,40 @@ public struct ImageViewerRemote: View {
         VStack {
             if(viewerShown && imageURL.count > 0) {
                 ZStack {
-                    VStack {
-                        HStack {
-                              
-                            if self.closeButtonTopRight == true {
+                    if self.closeButtonAlignment != CloseButtonAlignment.none {
+                        VStack {
+                            if self.closeButtonAlignment == CloseButtonAlignment.bottomLeft ||
+                                self.closeButtonAlignment == CloseButtonAlignment.bottomRight {
                                 Spacer()
                             }
-                            
-                            Button(action: { self.viewerShown = false }) {
-                                Image(systemName: "xmark")
-                                    .foregroundColor(Color(UIColor.white))
-                                    .font(.system(size: UIFontMetrics.default.scaledValue(for: 24)))
+                            HStack {
+                                
+                                if self.closeButtonAlignment == CloseButtonAlignment.topRight ||
+                                    self.closeButtonAlignment == CloseButtonAlignment.bottomRight {
+                                    Spacer()
+                                }
+                                
+                                Button(action: { self.viewerShown = false }) {
+                                    Image(systemName: "xmark")
+                                        .foregroundColor(Color(UIColor.white))
+                                        .font(.system(size: UIFontMetrics.default.scaledValue(for: 24)))
+                                }
+                                
+                                
+                                if self.closeButtonAlignment == CloseButtonAlignment.topLeft ||
+                                    self.closeButtonAlignment == CloseButtonAlignment.bottomLeft {
+                                    Spacer()
+                                }
                             }
                             
-                            
-                            if self.closeButtonTopRight != true {
+                            if self.closeButtonAlignment == CloseButtonAlignment.topLeft ||
+                                self.closeButtonAlignment == CloseButtonAlignment.topRight {
                                 Spacer()
                             }
                         }
-                        
-                        Spacer()
+                        .padding()
+                        .zIndex(2)
                     }
-                    .padding()
-                    .zIndex(2)
                     
                     VStack {
                         ZStack {
@@ -354,4 +365,13 @@ class ImageLoader: ObservableObject {
     func cancel() {
         cancellable?.cancel()
     }
+}
+
+
+public enum CloseButtonAlignment {
+    case topLeft
+    case topRight
+    case bottomLeft
+    case bottomRight
+    case none
 }

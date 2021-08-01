@@ -7,29 +7,30 @@ public struct ImageViewer: View {
     @Binding var image: Image
     @Binding var imageOpt: Image?
     @State var caption: Text?
-    @State var closeButtonTopRight: Bool?
+    @State var closeButtonAlignment: CloseButtonAlignment? = CloseButtonAlignment.topLeft
     
     var aspectRatio: Binding<CGFloat>?
     
     @State var dragOffset: CGSize = CGSize.zero
     @State var dragOffsetPredicted: CGSize = CGSize.zero
     
-    public init(image: Binding<Image>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, caption: Text? = nil, closeButtonTopRight: Bool? = false) {
+    public init(image: Binding<Image>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, caption: Text? = nil, closeButtonAlignment: CloseButtonAlignment?) {
         _image = image
         _viewerShown = viewerShown
         _imageOpt = .constant(nil)
         self.aspectRatio = aspectRatio
         _caption = State(initialValue: caption)
-        _closeButtonTopRight = State(initialValue: closeButtonTopRight)
+        _closeButtonAlignment = State(initialValue: closeButtonAlignment)
     }
     
-    public init(image: Binding<Image?>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, caption: Text? = nil, closeButtonTopRight: Bool? = false) {
+    public init(image: Binding<Image?>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, caption: Text? = nil, closeButtonAlignment: CloseButtonAlignment?) {
+        
         _image = .constant(Image(systemName: ""))
         _imageOpt = image
         _viewerShown = viewerShown
         self.aspectRatio = aspectRatio
         _caption = State(initialValue: caption)
-        _closeButtonTopRight = State(initialValue: closeButtonTopRight)
+        _closeButtonAlignment = State(initialValue: closeButtonAlignment)
     }
     
     func getImage() -> Image {
@@ -46,28 +47,38 @@ public struct ImageViewer: View {
         VStack {
             if(viewerShown) {
                 ZStack {
-                    VStack {
-                        HStack {
-                            
-                            if self.closeButtonTopRight == true {
+                    if self.closeButtonAlignment != CloseButtonAlignment.none {
+                        VStack {
+                            if self.closeButtonAlignment == CloseButtonAlignment.bottomLeft ||
+                                self.closeButtonAlignment == CloseButtonAlignment.bottomRight {
                                 Spacer()
                             }
-                            
-                            Button(action: { self.viewerShown = false }) {
-                                Image(systemName: "xmark")
-                                    .foregroundColor(Color(UIColor.white))
-                                    .font(.system(size: UIFontMetrics.default.scaledValue(for: 24)))
+                            HStack {
+                                
+                                if self.closeButtonAlignment == CloseButtonAlignment.topRight ||
+                                    self.closeButtonAlignment == CloseButtonAlignment.bottomRight {
+                                    Spacer()
+                                }
+                                
+                                Button(action: { self.viewerShown = false }) {
+                                    Image(systemName: "xmark")
+                                        .foregroundColor(Color(UIColor.white))
+                                        .font(.system(size: UIFontMetrics.default.scaledValue(for: 24)))
+                                }
+                                
+                                if self.closeButtonAlignment == CloseButtonAlignment.topLeft ||
+                                    self.closeButtonAlignment == CloseButtonAlignment.bottomLeft {
+                                    Spacer()
+                                }
                             }
-                            
-                            if self.closeButtonTopRight != true {
+                            if self.closeButtonAlignment == CloseButtonAlignment.topLeft ||
+                                self.closeButtonAlignment == CloseButtonAlignment.topRight {
                                 Spacer()
                             }
                         }
-                        
-                        Spacer()
+                        .padding()
+                        .zIndex(2)
                     }
-                    .padding()
-                    .zIndex(2)
                     
                     VStack {
                         ZStack {
@@ -288,4 +299,13 @@ extension View {
     func pinchToZoom() -> some View {
         self.modifier(PinchToZoom())
     }
+}
+
+
+public enum CloseButtonAlignment {
+    case topLeft
+    case topRight
+    case bottomLeft
+    case bottomRight
+    case none
 }
