@@ -67,9 +67,10 @@ struct ContentView: View {
 
 ### Close Button Position
 
-#### Availability: 2.2.0 or higher
+#### Availability: 3.0.0 or higher
+*Optional:* Defaults to .topLeft
 
-The close button can be moved to the top right if desired. The `closeButtonTopRight` parameter accepts `bool`.
+The close button position can be customized. The `closeButtonAlignment` parameter is an enum that accepts `.topLeft`, `.topRight`, `.bottomLeft`, `.bottomRight`, and `.hidden`.
 
 Example:
 ```Swift
@@ -84,7 +85,7 @@ struct ContentView: View {
             Text("Example!")
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(ImageViewer(image: self.$image, viewerShown: self.$showImageViewer, closeButtonTopRight: true))
+        .overlay(ImageViewer(image: self.$image, viewerShown: self.$showImageViewer, closeButtonAlignment: .topLeft))
     }
 }
 ```
@@ -93,6 +94,7 @@ struct ContentView: View {
 ### Caption
 
 #### Availability: 2.1.0 or higher
+*Optional*
 
 A caption can be added to the image viewer. The caption will appear near the bottom of the image viewer (if the image fills the whole screen the text will appear on top of the image). The `caption` parameter accepts `Text`.
 
@@ -184,6 +186,31 @@ struct ContentView: View {
         }
 	.frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(ImageViewerRemote(imageURL: URL(string: "https://..."), viewerShown: self.$showImageViewer, httpHeaders: ["X-Powered-By": "Swift!"]))
+    }
+}
+```
+
+### Close Button Position
+
+#### Availability: Below 3.0.0
+#### *DEPRECATED*: View new usage above for >= 3.0.0
+
+The close button can be moved to the top right if desired. The `closeButtonTopRight` parameter accepts `bool`.
+
+Example:
+```Swift
+import ImageViewer
+
+struct ContentView: View {
+    @State var showImageViewer: Bool = true
+    @State var image = Image("example-image")
+    
+    var body: some View {
+        VStack {
+            Text("Example!")
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(ImageViewer(image: self.$image, viewerShown: self.$showImageViewer, closeButtonTopRight: true))
     }
 }
 ```
