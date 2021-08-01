@@ -50,7 +50,7 @@ struct ContentView: View {
 
 ### Remote Image:
 
-The `imageURL` parameter accepts `String`
+The `imageURL` parameter accepts `String` in versions >= 3.0.0.
 <details>
 <summary>Previous Versions</summary>
 <br>
