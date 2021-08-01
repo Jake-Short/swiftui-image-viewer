@@ -23,7 +23,13 @@ File > Swift Packages > Add Package Dependancy
 
 ### Local Image:
 
-The `image` parameter accepts `Binding<Image>` in all versions. As of 1.0.20, it also accepts `Binding<Image?>`
+The `image` parameter accepts `Image` or `Image?` in versions >= 3.0.0.
+<details>
+<summary>Previous Versions</summary>
+<br>
+
+All versions <3.0.0 accept `Binding<Image>`. >=1.0.20 and <3.0.0 also accept `Binding<Image?>`.
+</details>
 
 ```Swift
 import ImageViewer
@@ -37,14 +43,20 @@ struct ContentView: View {
             Text("Example!")
         }
 	.frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(ImageViewer(image: self.$image, viewerShown: self.$showImageViewer))
+        .overlay(ImageViewer(image: self.image, viewerShown: self.$showImageViewer))
     }
 }
 ```
 
 ### Remote Image:
 
-The `imageURL` parameter accepts `Binding<String>`
+The `imageURL` parameter accepts `String`
+<details>
+<summary>Previous Versions</summary>
+<br>
+
+All versions <3.0.0 accept `Binding<String>`.
+</details>
 
 ```Swift
 import ImageViewerRemote
@@ -58,7 +70,7 @@ struct ContentView: View {
             Text("Example!")
         }
 	.frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(ImageViewerRemote(imageURL: self.$imgURL, viewerShown: self.$showImageViewer))
+        .overlay(ImageViewerRemote(imageURL: self.imgURL, viewerShown: self.$showImageViewer))
     }
 }
 ```

@@ -4,33 +4,34 @@ import UIKit
 @available(iOS 13.0, *)
 public struct ImageViewer: View {
     @Binding var viewerShown: Bool
-    @Binding var image: Image
-    @Binding var imageOpt: Image?
-    @State var caption: Text?
-    @State var closeButtonAlignment: CloseButtonAlignment? = CloseButtonAlignment.topLeft
+    var image: Image
+    var imageOpt: Image?
+    var caption: Text?
+    var closeButtonAlignment: CloseButtonAlignment? = CloseButtonAlignment.topLeft
     
     var aspectRatio: Binding<CGFloat>?
     
     @State var dragOffset: CGSize = CGSize.zero
     @State var dragOffsetPredicted: CGSize = CGSize.zero
     
-    public init(image: Binding<Image>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, caption: Text? = nil, closeButtonAlignment: CloseButtonAlignment?) {
-        _image = image
+    public init(image: Image, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, caption: Text? = nil, closeButtonAlignment: CloseButtonAlignment?) {
+        self.image = image
+        self.imageOpt = nil
+        
         _viewerShown = viewerShown
-        _imageOpt = .constant(nil)
         self.aspectRatio = aspectRatio
-        _caption = State(initialValue: caption)
-        _closeButtonAlignment = State(initialValue: closeButtonAlignment)
+        self.caption = caption
+        self.closeButtonAlignment = closeButtonAlignment
     }
     
-    public init(image: Binding<Image?>, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, caption: Text? = nil, closeButtonAlignment: CloseButtonAlignment?) {
+    public init(image: Image?, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, caption: Text? = nil, closeButtonAlignment: CloseButtonAlignment?) {
+        self.image = Image(systemName: "")
+        self.imageOpt = image
         
-        _image = .constant(Image(systemName: ""))
-        _imageOpt = image
         _viewerShown = viewerShown
         self.aspectRatio = aspectRatio
-        _caption = State(initialValue: caption)
-        _closeButtonAlignment = State(initialValue: closeButtonAlignment)
+        self.caption = caption
+        self.closeButtonAlignment = closeButtonAlignment
     }
     
     func getImage() -> Image {
@@ -148,7 +149,7 @@ public struct ImageViewer: View {
 }
 
 
-class PinchZoomView: UIView {
+public class PinchZoomView: UIView {
 
     weak var delegate: PinchZoomViewDelgate?
 
@@ -230,7 +231,7 @@ class PinchZoomView: UIView {
 
 }
 
-protocol PinchZoomViewDelgate: AnyObject {
+public protocol PinchZoomViewDelgate: AnyObject {
     func pinchZoomView(_ pinchZoomView: PinchZoomView, didChangePinching isPinching: Bool)
     func pinchZoomView(_ pinchZoomView: PinchZoomView, didChangeScale scale: CGFloat)
     func pinchZoomView(_ pinchZoomView: PinchZoomView, didChangeAnchor anchor: UnitPoint)
@@ -281,13 +282,13 @@ struct PinchZoom: UIViewRepresentable {
     }
 }
 
-struct PinchToZoom: ViewModifier {
+public struct PinchToZoom: ViewModifier {
     @State var scale: CGFloat = 1.0
     @State var anchor: UnitPoint = .center
     @State var offset: CGSize = .zero
     @State var isPinching: Bool = false
 
-    func body(content: Content) -> some View {
+    public func body(content: Content) -> some View {
         content
             .scaleEffect(scale, anchor: anchor)
             .offset(offset)
@@ -295,7 +296,7 @@ struct PinchToZoom: ViewModifier {
     }
 }
 
-extension View {
+public extension View {
     func pinchToZoom() -> some View {
         self.modifier(PinchToZoom())
     }
