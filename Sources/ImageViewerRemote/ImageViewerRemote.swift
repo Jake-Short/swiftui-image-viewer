@@ -19,7 +19,7 @@ public struct ImageViewerRemote: View {
     
     @ObservedObject var loader: ImageLoader
     
-    public init(imageURL: String, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, disableCache: Bool? = nil, caption: Text? = nil, closeButtonAlignment: CloseButtonAlignment?) {
+    public init(imageURL: String, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, disableCache: Bool? = nil, caption: Text? = nil, closeButtonAlignment: CloseButtonAlignment? = .topLeft) {
         self.imageURL = imageURL
         _viewerShown = viewerShown
         self.disableCache = disableCache
