@@ -14,7 +14,7 @@ public struct ImageViewer: View {
     @State var dragOffset: CGSize = CGSize.zero
     @State var dragOffsetPredicted: CGSize = CGSize.zero
     
-    public init(image: Image, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, caption: Text? = nil, closeButtonAlignment: CloseButtonAlignment?) {
+    public init(image: Image, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, caption: Text? = nil, closeButtonAlignment: CloseButtonAlignment? = .topLeft) {
         self.image = image
         self.imageOpt = nil
         
@@ -24,7 +24,7 @@ public struct ImageViewer: View {
         self.closeButtonAlignment = closeButtonAlignment
     }
     
-    public init(image: Image?, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, caption: Text? = nil, closeButtonAlignment: CloseButtonAlignment?) {
+    public init(image: Image?, viewerShown: Binding<Bool>, aspectRatio: Binding<CGFloat>? = nil, caption: Text? = nil, closeButtonAlignment: CloseButtonAlignment? = .topLeft) {
         self.image = Image(systemName: "")
         self.imageOpt = image
         
@@ -150,7 +150,6 @@ public struct ImageViewer: View {
 
 
 public class PinchZoomView: UIView {
-
     weak var delegate: PinchZoomViewDelgate?
 
     private(set) var scale: CGFloat = 0 {
@@ -239,7 +238,6 @@ public protocol PinchZoomViewDelgate: AnyObject {
 }
 
 struct PinchZoom: UIViewRepresentable {
-
     @Binding var scale: CGFloat
     @Binding var anchor: UnitPoint
     @Binding var offset: CGSize
